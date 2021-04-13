@@ -10,10 +10,8 @@ const {PRIVATE_KEY} = require('./utils/constant')
 
 var articleRouter = require('./routes/article');
 var usersRouter = require('./routes/users');
-
 var app = express();
  
-
 
 // 导入并配置cors中间件 --(为了解决浏览器的跨域问题)
 const cors = require('cors');
