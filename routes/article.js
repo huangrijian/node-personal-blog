@@ -6,7 +6,7 @@ const querySql = require('../db/index')
 /* 新增博客接⼝ */
 router.post('/add', async(req, res, next) => {
   // 获取标题和内容及分类
-  let {title,content,classname01,classname02,classname03} = req.body
+  let {title,content,classname01,classname02,classname03,type} = req.body
   // 获取经过了 expressJwt拦截token后得到的username
   let {username} = req.user
 
@@ -14,7 +14,6 @@ router.post('/add', async(req, res, next) => {
     // 根据用户名获取用户id
     let result = await querySql('select id from user where username = ?', [username])
     let user_id = result[0].id
-
     if(!classname01){
       // 如果当前的类名为空
       var cid01 = null;
@@ -79,13 +78,16 @@ router.post('/add', async(req, res, next) => {
 
 
     // 将标题和内容和作者以及文章分类id和分类名称插入数据库
-    await querySql(`insert into article(title,content,user_id,
+    await querySql(
+      `insert into article(title,content,user_id,
       classify_id01,classify_id02,classify_id03,
       class_name01,class_name02,class_name03,
-      create_time)values(?,?,?,?,?,?,?,?,?,NOW())`
+      type,
+      create_time)values(?,?,?,?,?,?,?,?,?,?,localtime)`
     ,[title,content,user_id,
       cid01,cid02,cid03,
-      className_01,className_02,className_03
+      className_01,className_02,className_03,
+      type
     ])
 
     res.send({code:0,msg:'新增成功',data:null})
@@ -100,7 +102,9 @@ router.get('/allList', async(req, res, next) => {
   try {
 
     //DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time 格式化时间
-    let sql = 'select id,title,content,class_name01,class_name02,class_name03,DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time from article'
+    let sql = `select id,title,content,
+    class_name01,class_name02,class_name03,type,
+    DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time from article`
     let result = await querySql(sql)
     
     res.send({code:0,msg:'获取成功',data:result})
@@ -125,20 +129,24 @@ router.get('/classify/single', async(req, res, next) => {
   }
  });
 
-//  // 获取单个分类列表接⼝
-// router.get('/Singleclassify', async(req, res, next) => {
-//   try {
+ // 获取单个分类的文章列表接⼝
+router.get('/list/Singleclassify', async(req, res, next) => {
+  
+  try {
     
-//     let {classify_id} = req.query
-//     console.log(classify_id);
-//     let sql = 'select classname from classify where classify_id = ?'
-//       let classname = await querySql(sql,[classify_id])
-//     res.send({code:0,msg:'获取单个标签分类成功',data:{classname}})
-//   }catch(e){
-//     console.log(e)
-//     next(e)
-//   }
-//  });
+    let {classname} = req.query
+    console.log(classname);
+    let sql = `select id,title,content,create_time,
+    classify_id01,class_name01,
+    classify_id02,class_name02,
+    classify_id03,class_name03 from article where class_name01 = ? OR class_name02 = ?  OR class_name03 = ? `
+    let list = await querySql(sql,[classname,classname,classname])
+    res.send({code:0,msg:'获取单个标签分类成功',data:{list}})
+  }catch(e){
+    console.log(e)
+    next(e)
+  }
+ });
 
 
 
@@ -196,7 +204,6 @@ router.post('/update', async(req, res, next) => {
     classid_01,classid_02,classid_03
   } = req.body
 
-  // console.log(classname01,classname02,classname03);
 
   try {
     // 通过文章id修改文章对应的标题和内容
