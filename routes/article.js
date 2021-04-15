@@ -2,13 +2,16 @@ var express = require('express');
 var router = express.Router();
 // 引入连接数据库的方法
 const querySql = require('../db/index')
+const {upload} = require('../utils/index')
 
 /* 新增博客接⼝ */
 router.post('/add', async(req, res, next) => {
   // 获取标题和内容及分类
-  let {title,content,classname01,classname02,classname03,type} = req.body
+  let {title,content,classname01,classname02,classname03,type,pic_url} = req.body
   // 获取经过了 expressJwt拦截token后得到的username
   let {username} = req.user
+
+  console.log("封面",pic_url);
 
   try {
     // 根据用户名获取用户id
@@ -77,17 +80,17 @@ router.post('/add', async(req, res, next) => {
   }
 
 
-    // 将标题和内容和作者以及文章分类id和分类名称插入数据库
+    // 将标题和内容和作者以及文章分类id和分类名称和封面地址插入数据库
     await querySql(
       `insert into article(title,content,user_id,
       classify_id01,classify_id02,classify_id03,
       class_name01,class_name02,class_name03,
-      type,
-      create_time)values(?,?,?,?,?,?,?,?,?,?,localtime)`
+      type,pic_url,
+      create_time)values(?,?,?,?,?,?,?,?,?,?,?,localtime)`
     ,[title,content,user_id,
       cid01,cid02,cid03,
       className_01,className_02,className_03,
-      type
+      type,pic_url
     ])
 
     res.send({code:0,msg:'新增成功',data:null})
@@ -97,17 +100,44 @@ router.post('/add', async(req, res, next) => {
   }
  });
 
+// 上传博客封面接口
+router.post('/upload',upload.single('head_img'),async(req,res,next) => {
+  console.log(req.file)
+  let imgPath = req.file.path.split('public')[1]
+  let imgUrl = 'http://127.0.0.1:3000'+imgPath
+  res.send({code:0,msg:'上传成功',data:imgUrl})
+})
+
 // 获取全部博客列表接⼝
 router.get('/allList', async(req, res, next) => {
+  // select * from student limit(curPage-1)*pageSize,pageSize;
   try {
 
-    //DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time 格式化时间
-    let sql = `select id,title,content,
-    class_name01,class_name02,class_name03,type,
-    DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time from article`
-    let result = await querySql(sql)
+    let{curPage,pageSize} = req.query
+
+    if(curPage && pageSize) {
+      var start = (curPage - 1) * pageSize;
+
+      // 获取所有博客的数量
+      var numsql = 'select * from article'
+
+      var sql = `SELECT id,title,content,
+      class_name01,class_name02,class_name03,type,pic_url,
+      DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time FROM article limit ` + start + ',' + pageSize;
+
+      var coust = await querySql(numsql)
+      coust = coust.length
+    }else {
+          //DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time 格式化时间
+      var sql = `select id,title,content,
+      class_name01,class_name02,class_name03,type,pic_url,
+      DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time from article`
+    }
+
     
-    res.send({code:0,msg:'获取成功',data:result})
+    let result = await querySql(sql)
+    res.send({code:0,msg:'获取成功',data:result,coust})
+
   }catch(e){
     console.log(e)
     next(e)
@@ -201,20 +231,16 @@ router.get('/myList', async(req, res, next) => {
 router.post('/update', async(req, res, next) => {
   let {article_id,title,content,
     classname01,classname02,classname03,
-    classid_01,classid_02,classid_03
+    classid_01,classid_02,classid_03,pic_url
   } = req.body
 
-
+  console.log("更新图片地址",pic_url);
   try {
-    // 通过文章id修改文章对应的标题和内容
-    let sql = 'update article set title = ?,content = ?,class_name01 = ?,class_name02 = ?,class_name03 = ? where id = ?'
-    await querySql(sql,[title,content,classname01,classname02,classname03,article_id])
+    // 通过文章id修改文章对应的标题和内容和封面地址
+    let sql = 'update article set title = ?,content = ?,class_name01 = ?,class_name02 = ?,class_name03 = ?,pic_url = ? where id = ?'
+    await querySql(sql,[title,content,classname01,classname02,classname03,pic_url,article_id])
 
     // 通过 类id 修改类名表里的数据
-    console.log("xx");
-    console.log(await querySql('select classname from classify where classname = ?',[classname01]));
-
-
     if(await querySql('select classname from classify where classname = ?',[classname01]) == false){
       let sql2 = 'update classify set classname = ? where classify_id = ?'
       await querySql(sql2,[classname01,classid_01])
@@ -235,4 +261,6 @@ router.post('/update', async(req, res, next) => {
     next(e)
   }
  });
+
+
 module.exports = router;

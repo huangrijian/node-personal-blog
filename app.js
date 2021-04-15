@@ -38,6 +38,10 @@ app.use(expressJWT({
   '/api/users/login',
   '/api/users/register',
   '/api/article/allList',
+  '/api/article/classify',
+  '/api/article/list/Singleclassify',
+  '/api/article/upload'
+  
   
 ] //⽩名单,除了这⾥写的地址，其 他的URL都需要验证
  }));
