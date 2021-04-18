@@ -12,8 +12,9 @@ const jwt = require('jsonwebtoken')
 router.post('/register', async (req, res, next) => {
   let {username,password,nickname} = req.body;
   try{
-    // 查询有无user
-    let user = await querySql('select * from user where username = ?',[username]);
+    // 查询有无相同的用户名或者相同昵称 逻辑或  =>  有真则为真，两个都是假才为假
+    let user = await querySql('select * from user where username = ? OR nickname = ? ',[username,nickname]);
+    // let nicknameuser = await querySql('select * from user where username = ?',[username]);
     if(!user || user.length === 0){
       // 调用加密方法给密码加密 
       password = md5(`${password}${PWD_SALT}`)
