@@ -10,6 +10,7 @@ const {PRIVATE_KEY} = require('./utils/constant')
 
 var articleRouter = require('./routes/article');
 var usersRouter = require('./routes/users');
+var commentRouter = require('./routes/comment');
 var app = express();
  
 
@@ -40,15 +41,17 @@ app.use(expressJWT({
   '/api/article/allList',
   '/api/article/classify',
   '/api/article/list/Singleclassify',
-  '/api/article/upload'
+  '/api/article/upload',
+  '/api/comment/list',
   
   
 ] //⽩名单,除了这⾥写的地址，其 他的URL都需要验证
  }));
 
-
+// 拼接请求地址的中间件
 app.use('/api/article', articleRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/comment', commentRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

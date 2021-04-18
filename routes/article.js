@@ -100,7 +100,7 @@ router.post('/add', async(req, res, next) => {
   }
  });
 
-// 上传博客封面接口
+// 上传封面或头像接口 ，将图片保存在当前的 uploads 目录下
 router.post('/upload',upload.single('head_img'),async(req,res,next) => {
   console.log(req.file)
   let imgPath = req.file.path.split('public')[1]
@@ -113,6 +113,7 @@ router.get('/allList', async(req, res, next) => {
   // select * from student limit(curPage-1)*pageSize,pageSize;
   try {
 
+    // 当前页 和 每页的数量
     let{curPage,pageSize} = req.query
 
     if(curPage && pageSize) {
@@ -166,7 +167,7 @@ router.get('/list/Singleclassify', async(req, res, next) => {
     
     let {classname} = req.query
     console.log(classname);
-    let sql = `select id,title,content,create_time,
+    let sql = `select pic_url,id,title,content,create_time,
     classify_id01,class_name01,
     classify_id02,class_name02,
     classify_id03,class_name03 from article where class_name01 = ? OR class_name02 = ?  OR class_name03 = ? `
@@ -198,8 +199,17 @@ router.get('/detail', async(req, res, next) => {
   let article_id = req.query.article_id
   try {
     // 根据文章id查询相关数据
-    let sql = 'select id,title,content,class_name01,classify_id01,class_name02,classify_id02,class_name03,classify_id03,DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time from article where id = ?'
+    let sql = `select id,title,content,
+    class_name01,classify_id01,
+    class_name02,classify_id02,
+    class_name03,classify_id03,
+    visited,like_count,pic_url,
+    DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time from article where id = ?`
     let result = await querySql(sql,[article_id])
+    let visited = result[0].visited + 1
+    console.log("访问量",visited);
+    // 将文章访问量＋1后更新到文章中
+    await querySql('update article set visited = ? where id = ?',[visited,article_id])
     res.send({code:0,msg:'获取成功',data:result[0]})
   }catch(e){
     console.log(e)
@@ -227,6 +237,53 @@ router.get('/myList', async(req, res, next) => {
   }
  });
 
+// 点赞文章接口
+router.post('/like',async(req,res,next)=> {
+  let {article_id} = req.body
+  let {username} = req.user
+  try{
+    // // 根据用户名查找用户id
+    // let userSql = 'select id from user where username = ?'
+    // let user = await querySql(userSql,[username])
+    // let user_id = user[0].id
+
+    // //先判断当前用户是否曾经点赞过该文章
+    // let silkesql = 'select islike , like_count from article where user_id = ? AND id = ?'
+    // let likeres = await querySql(silkesql,[user_id,article_id])
+
+    // if(likeres[0].islike == 0){
+    //   // 根据文章id查询出该文章的点赞数量
+    //   let sql = 'select like_count from article where id = ? '
+    //   let result = await querySql(sql,[article_id])
+    //   let newlikeCount = result[0].like_count + 1;
+    //   // 更新文章的点赞数量,并且把当前文章的islike改为1,代表着当前用户已经对当前文章实施了点赞行为
+    //   let likesql = 'update article set islike = ?, like_count = ? where user_id = ? AND id = ?'
+    //   await querySql(likesql,[1,newlikeCount,user_id,article_id])
+    //   // 再次查询当前文章点赞数，并返回给前端
+    //   let likeres = await querySql('select islike,like_count from article where user_id = ? AND id = ?',[user_id,article_id])
+    //   res.send({code:0,msg:'点赞成功',data:likeres})
+    // }else {
+    //   res.send({code:-1,msg:'点赞失败，请勿重复点赞哦，亲~',data:likeres})
+    // }
+
+      let sql = 'select like_count from article where id = ? '
+      let result = await querySql(sql,[article_id])
+      let newlikeCount = result[0].like_count + 1;
+
+      let likesql = 'update article set like_count = ? where id = ?'
+      await querySql(likesql,[newlikeCount,article_id])
+
+      let likeres = await querySql('select like_count from article where id = ?',[article_id])
+
+      res.send({code:0,msg:'点赞成功',data:likeres})
+
+
+  }catch(e){
+    console.log(e)
+    next(e)
+  }
+})
+
 // 更新文章接⼝
 router.post('/update', async(req, res, next) => {
   let {article_id,title,content,
@@ -234,7 +291,6 @@ router.post('/update', async(req, res, next) => {
     classid_01,classid_02,classid_03,pic_url
   } = req.body
 
-  console.log("更新图片地址",pic_url);
   try {
     // 通过文章id修改文章对应的标题和内容和封面地址
     let sql = 'update article set title = ?,content = ?,class_name01 = ?,class_name02 = ?,class_name03 = ?,pic_url = ? where id = ?'
