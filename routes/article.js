@@ -108,31 +108,44 @@ router.post('/upload',upload.single('head_img'),async(req,res,next) => {
   res.send({code:0,msg:'上传成功',data:imgUrl})
 })
 
-// 获取全部博客列表接⼝
-router.get('/allList', async(req, res, next) => {
+// 获取博客列表接⼝（根据type获取，不填则返回技术文章，type为1则返回生活说说）
+router.get('/typeList', async(req, res, next) => {
   // select * from student limit(curPage-1)*pageSize,pageSize;
   try {
 
-    // 当前页 和 每页的数量
-    let{curPage,pageSize} = req.query
+    // 当前页 和 每页的数量 以及类型， type为1则返回生活说说,为空则返回技术文章
+    let{curPage,pageSize,type} = req.query
 
+    // 如果有分页数据则执行分页查询
     if(curPage && pageSize) {
-      var start = (curPage - 1) * pageSize;
-
-      // 获取所有博客的数量
-      var numsql = 'select * from article'
-
-      var sql = `SELECT id,title,content,
-      class_name01,class_name02,class_name03,type,pic_url,
-      DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time FROM article limit ` + start + ',' + pageSize;
-
-      var coust = await querySql(numsql)
-      coust = coust.length
+       if(!type){
+        //  type为空则返回技术文章
+          var start = (curPage - 1) * pageSize;
+          // 获取所有博客的数量
+          var numsql = 'select * from article where type = 0'
+          var sql = `SELECT id,title,content,
+          class_name01,class_name02,class_name03,type,pic_url,
+          DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time FROM article where type = 0 limit ` + start + ',' + pageSize;
+          var coust = await querySql(numsql)
+          coust = coust.length
+       }
+      //  else 返回生活说说，这里先不写，是因为生活说说数量少暂时不需要分类
+      
     }else {
+      // 如果不分页...
+      // 如果文章类型为1
+      if(type == 1){
+        // 则返回生活说说 type为1
+         var sql = `select id,title,content,
+          class_name01,class_name02,class_name03,type,pic_url,
+          DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time from article where type =`+type
+      }else {
+          // 否则返回技术文章 type为0
           //DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time 格式化时间
-      var sql = `select id,title,content,
-      class_name01,class_name02,class_name03,type,pic_url,
-      DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time from article`
+          var sql = `select id,title,content,
+          class_name01,class_name02,class_name03,type,pic_url,
+          DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time from article where type = 0`
+      }
     }
 
     
@@ -180,6 +193,22 @@ router.get('/list/Singleclassify', async(req, res, next) => {
  });
 
 
+// 删除博客接口
+router.post('/delete', async(req, res, next) => {
+  let {article_id} = req.body
+  let {username} = req.user
+  try {
+    let userSql = 'select id from user where username = ?'
+    let user = await querySql(userSql,[username])
+    let user_id = user[0].id
+    let sql = 'delete from article where id = ? and user_id = ?'
+    let result = await querySql(sql,[article_id,user_id])
+    res.send({code:0,msg:'删除成功',data:null})
+  }catch(e){
+    console.log(e)
+    next(e)
+  } 
+});
 
 // 获取全部博客分类接口
 router.get('/classify', async(req, res, next) => {
@@ -217,7 +246,8 @@ router.get('/detail', async(req, res, next) => {
   }
  });
 
- // 获取我的博客列表接⼝
+
+ // 获取管理员的全部博客列表接⼝
 router.get('/myList', async(req, res, next) => {
   // expressJwt拦截token 后得到的username
     let {username} = req.user

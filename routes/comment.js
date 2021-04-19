@@ -42,5 +42,16 @@ router.get('/list',async(req,res,next) => {
   } 
 })
 
-
+// 删除评论接口
+router.post('/delete', async(req, res, next) => {
+  let {comment_id} = req.body
+  try {
+    let sql = 'delete from comment where id = ?'
+    let result = await querySql(sql,[comment_id])
+    res.send({code:0,msg:'删除成功',data:null})
+  }catch(e){
+    console.log(e)
+    next(e)
+  } 
+});
 module.exports = router;
