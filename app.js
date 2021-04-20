@@ -43,7 +43,7 @@ app.use(expressJWT({
   '/api/article/list/Singleclassify',
   '/api/article/upload',
   '/api/comment/list',
-  
+  '/api/article/typeList'
   
 ] //⽩名单,除了这⾥写的地址，其 他的URL都需要验证
  }));

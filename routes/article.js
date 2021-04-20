@@ -11,8 +11,6 @@ router.post('/add', async(req, res, next) => {
   // 获取经过了 expressJwt拦截token后得到的username
   let {username} = req.user
 
-  console.log("封面",pic_url);
-
   try {
     // 根据用户名获取用户id
     let result = await querySql('select id from user where username = ?', [username])
@@ -79,6 +77,8 @@ router.post('/add', async(req, res, next) => {
     className_03 = className_03[0].classname
   }
 
+  // 判断type是否为空,不为空返回本身,为空返回0(代表文章类型是技术博文)
+  type = type ? type : 0;
 
     // 将标题和内容和作者以及文章分类id和分类名称和封面地址插入数据库
     await querySql(
