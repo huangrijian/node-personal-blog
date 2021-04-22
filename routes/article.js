@@ -124,7 +124,7 @@ router.get('/typeList', async(req, res, next) => {
           // 获取所有博客的数量
           var numsql = 'select * from article where type = 0'
           var sql = `SELECT id,title,content,
-          class_name01,class_name02,class_name03,type,pic_url,
+          class_name01,class_name02,class_name03,type,pic_url,like_count,
           DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time FROM article where type = 0 limit ` + start + ',' + pageSize;
           var coust = await querySql(numsql)
           coust = coust.length
@@ -137,13 +137,13 @@ router.get('/typeList', async(req, res, next) => {
       if(type == 1){
         // 则返回生活说说 type为1
          var sql = `select id,title,content,
-          class_name01,class_name02,class_name03,type,pic_url,
+          class_name01,class_name02,class_name03,type,pic_url,like_count,
           DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time from article where type =`+type
       }else {
           // 否则返回技术文章 type为0
           //DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time 格式化时间
           var sql = `select id,title,content,
-          class_name01,class_name02,class_name03,type,pic_url,
+          class_name01,class_name02,class_name03,type,pic_url,like_count,
           DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time from article where type = 0`
       }
     }
