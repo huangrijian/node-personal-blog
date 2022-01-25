@@ -11,11 +11,19 @@ const {PRIVATE_KEY} = require('./utils/constant')
 var articleRouter = require('./routes/article');
 var usersRouter = require('./routes/users');
 var commentRouter = require('./routes/comment');
+var speechRouter = require('./routes/speech');
+var photoWallRouter = require('./routes/photoWall');
 var app = express();
  
-
 // 导入并配置cors中间件 --(为了解决浏览器的跨域问题)
 const cors = require('cors');
+var corsOptions = {
+  origin: 'http://www.hrjblog.top',
+  // origin: 'http://localhost:8080',
+  optionsSuccessStatus: 200 
+}
+// 设置跨域白名单
+var corsWeb = cors(corsOptions);
 app.use(cors());
 
 // view engine setup
@@ -36,6 +44,7 @@ app.use(expressJWT({
  }).unless({
   path: [
     '/api/article/detail',
+    '/api/article/search',
   '/api/users/login',
   '/api/users/register',
   '/api/article/allList',
@@ -43,15 +52,19 @@ app.use(expressJWT({
   '/api/article/list/Singleclassify',
   '/api/article/upload',
   '/api/comment/list',
-  '/api/article/typeList'
-  
+  '/api/article/typeList',
+  '/api/article/timeShaft',
+  '/api/speech/getSpeech',
+  '/api/photoWall/getPhoto'
 ] //⽩名单,除了这⾥写的地址，其 他的URL都需要验证
  }));
 
 // 拼接请求地址的中间件
-app.use('/api/article', articleRouter);
-app.use('/api/users', usersRouter);
-app.use('/api/comment', commentRouter);
+app.use('/api/article', corsWeb,articleRouter);
+app.use('/api/users', corsWeb,usersRouter);
+app.use('/api/comment', corsWeb,commentRouter);
+app.use('/api/speech', corsWeb,speechRouter);
+app.use('/api/photoWall', corsWeb,photoWallRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

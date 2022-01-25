@@ -70,13 +70,28 @@ router.get('/info', async (req, res, next) => {
   console.log(req.user);
   let { username } = req.user
   try{
-    let userinfo = await querySql('select nickname,head_img from user where username = ?',[username])
+    let userinfo = await querySql('select nickname,head_img,grade,username from user where username = ?',[username])
     res.send({code:0,msg:'成功',data:userinfo[0]})
   }catch(e){
     console.log(e);
     next(e)
   }
 });
+
+/* 获取全部用户信息 */
+router.get('/infoList', async (req, res, next) => {
+ let sql = `SELECT username, nickname, is_apply,grade FROM user`;
+ let result = await querySql(sql);
+ res.send({code:0,msg:'获取全部用户信息成功',data:result})
+});
+
+/* 更新单条用户权限 */
+router.post('/authority', async (req, res, next) => {
+  let {username,grade} = req.body.form;
+  let sql = `UPDATE user SET grade = ? WHERE username = ?`;
+  await querySql(sql,[grade,username]);
+  res.send({code:0,msg:'更新单条用户权限成功'})
+ });
 
 //用户信息更新接口
 router.post('/updateUser',async(req,res,next) => {
@@ -91,14 +106,19 @@ router.post('/updateUser',async(req,res,next) => {
     // 更新用户信息
     await querySql('update user set nickname = ?,head_img = ? where username = ?',[nickname,head_img,username])
     // 通过用户id去更新评论表里的相对应的用户头像和用户昵称
-    let r = await querySql('update comment set nickname = ?,head_img = ? where user_id = ?',[nickname,head_img,user_id])
-    console.log("更新评论表",r);
+    await querySql('update comment set nickname = ?,head_img = ? where user_id = ?',[nickname,head_img,user_id])
     // console.log(ress);
     res.send({code:0,msg:'更新成功',data:null})
   }catch(e){
     console.log(e)
     next(e)
   } 
+})
+
+router.post('/updateGrade',async(req,res,next) => {
+  let {username,is_apply} = req.body
+  await querySql('update user set is_apply = ? where username = ?',[is_apply,username])
+  res.send({code:200,msg:'成功'})
 })
 
 module.exports = router;
