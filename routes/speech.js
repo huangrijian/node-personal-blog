@@ -1,5 +1,5 @@
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
 // 引入连接数据库的方法
 const querySql = require('../db/index')
 

@@ -1,5 +1,5 @@
-var express = require('express');
-var router = express.Router();
+let express = require('express');
+let router = express.Router();
 // 引入连接数据库的方法
 const querySql = require('../db/index')
 const { upload } = require('../utils/index')
@@ -45,16 +45,16 @@ router.post('/addArticle', async (req, res, next) => {
 })
 
 
-// 上传封面或头像接口 ，将图片保存在当前的 uploads 目录下
+// 上传封面或头像 ，将图片保存在当前的 uploads 目录下
 router.post('/upload', upload.single('head_img'), async (req, res, next) => {
-  // let url = 'http://127.0.0.1:3000';
-  let url = 'http://112.124.52.188:3000';
+  console.log(req)
+  let url = 'http://127.0.0.1:4000';
   let imgPath = req.file.path.split('public')[1];
   let imgUrl = url + imgPath
   res.send({ code: 0, msg: '上传成功', data: imgUrl })
 })
 
-// 获取博客列表接⼝（根据type获取，不填则返回技术文章，type为1则返回生活说说）
+// 获取博客列表（根据type获取，不填则返回技术文章，type为1则返回生活说说）
 router.get('/typeList', async (req, res, next) => {
   // select * from student limit(curPage-1)*pageSize,pageSize;
   try {
@@ -66,15 +66,15 @@ router.get('/typeList', async (req, res, next) => {
     if (curPage && pageSize) {
       if (!type) {
         //  type为空则返回技术文章
-        var start = (curPage - 1) * pageSize;
+        let start = (curPage - 1) * pageSize;
         // 获取所有博客的数量
-        var numsql = 'select * from article where type = 0'
+        let numsql = 'select * from article where type = 0'
         var sql = `SELECT id,title,content,author,classify,type,pic_url,like_count,
           DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time FROM article where type = 0 limit ` + start + ',' + pageSize;
         var coust = await querySql(numsql)
         coust = coust.length
       }
- 
+
     } else {
       // 如果不分页...
       // 如果文章类型为1
@@ -109,22 +109,22 @@ router.get('/typeList', async (req, res, next) => {
 });
 
 
-// 获取单个分类的文章列表接⼝
-router.get('/list/Singleclassify', async (req, res, next) => {
+// 通过单个分类获取文章列表
+router.get('/list/Singleclassify', async ({ query: { classname } }, res, next) => {
 
-  try {
-    let { classname } = req.query
-    let sql2 = `SELECT list FROM classify WHERE classname = '${classname}'`
-    let list2 = await querySql(sql2)
-
-    let idArray = JSON.parse(list2[0].list);
+  async function getArticleIdList(classname) {
+    let sql = `SELECT list FROM classify WHERE classname = '${classname}'`
+    let res = await querySql(sql)
+    let idArray = JSON.parse(res[0].list);
     let idList = idArray.length > 0 ? idArray.join() : 0;
+    return idList;
+  }
 
-    let sql3 = `SELECT pic_url,title,content,create_time,classify FROM article WHERE id IN (${idList})`
+  async function getArticleInfoData(idList) {
+    let sql = `SELECT pic_url,title,content,create_time,classify, id FROM article WHERE id IN (${idList})`
+    let list = await querySql(sql)
 
-    let list3 = await querySql(sql3)
-
-    let arr = list3.map((item) => {
+    let articleArr = list.map((item) => {
       if (item.classify !== '[]') {
         item.classify = JSON.parse(item.classify);
       } else {
@@ -132,7 +132,14 @@ router.get('/list/Singleclassify', async (req, res, next) => {
       }
       return item
     })
+    return articleArr
+  }
 
+  try {
+    // 获取某分类下的所有文章id列表 如:93,95
+    let idList = await getArticleIdList(classname);
+    // 通过id列表 (如:93,95)获取文章信息数据
+    let arr = await getArticleInfoData(idList)
     res.send({ code: 0, msg: '获取单个标签分类成功', data: { list: arr } })
   } catch (e) {
     console.log(e)
@@ -141,7 +148,7 @@ router.get('/list/Singleclassify', async (req, res, next) => {
 });
 
 
-// 删除博客接口
+// 删除博客
 router.post('/delete', async (req, res, next) => {
   let { article_id } = req.body
   let { username } = req.user
@@ -149,7 +156,7 @@ router.post('/delete', async (req, res, next) => {
     let userSql = 'select id from user where username = ?'
     let user = await querySql(userSql, [username])
     let user_id = user[0].id
-    let sql = 'delete from article where id = ? and user_id = ?'
+    var sql = 'delete from article where id = ? and user_id = ?'
     let result = await querySql(sql, [article_id, user_id])
     res.send({ code: 0, msg: '删除成功', data: null })
   } catch (e) {
@@ -160,10 +167,10 @@ router.post('/delete', async (req, res, next) => {
 
 
 
-// 获取全部博客分类接口
+// 获取全部博客分类
 router.get('/classify', async (req, res, next) => {
   try {
-    let sql = 'select classify_id,classname from classify'
+    var sql = 'select classify_id,classname from classify'
     let result = await querySql(sql)
     res.send({ code: 0, msg: '获取博客分类成功', data: result })
   } catch (e) {
@@ -173,12 +180,12 @@ router.get('/classify', async (req, res, next) => {
 });
 
 
-// 获取博客详情接⼝
+// 获取博客详情
 router.get('/detail', async (req, res, next) => {
   let article_id = req.query.article_id
   try {
     // 根据文章id查询相关数据
-    let sql = `select id,title,content,
+    var sql = `select id,title,content,
     visited,like_count,pic_url,author,classify,
     DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time from article where id = ?`
 
@@ -196,7 +203,7 @@ router.get('/detail', async (req, res, next) => {
 });
 
 
-// 获取管理员的全部博客列表接⼝
+// 获取管理员的全部博客列表
 router.get('/myList', async (req, res, next) => {
   // expressJwt拦截token 后得到的username
   let { username } = req.user
@@ -206,7 +213,7 @@ router.get('/myList', async (req, res, next) => {
     let user = await querySql(userSql, [username])
     let user_id = user[0].id
     // 根据用户id查找文章 (也就是查找当前作者的文章,包括文章id,标题，内容)
-    let sql = 'select id,title,content,DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time from article where user_id = ?'
+    var sql = 'select id,title,content,DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time from article where user_id = ?'
     let result = await querySql(sql, [user_id])
     // 将找到的结果返回到前端
     res.send({ code: 0, msg: '获取成功', data: result })
@@ -222,14 +229,14 @@ router.get('/timeShaft', async (req, res, next) => {
 
   async function filtration(...timer) {
     let result = [];
-    for(let i = 0; i < timer.length; i++) {
-      let sql = `SELECT id,title,DATE_FORMAT(create_time,"%Y-%m-%d") AS create_time
+    for (let i = 0; i < timer.length; i++) {
+      var sql = `SELECT id,title,DATE_FORMAT(create_time,"%Y-%m-%d") AS create_time
       FROM article WHERE create_time LIKE '%${timer[i]}%' order by create_time desc;`
       let res = await querySql(sql);
       res.r
       let dataObj = {
-        year:timer[i],
-        data:res
+        year: timer[i],
+        data: res
       }
       result.push(dataObj);
     }
@@ -238,19 +245,19 @@ router.get('/timeShaft', async (req, res, next) => {
   }
 
   try {
-    res.send({ code: 0, msg: '获取成功', data:await filtration(2021, 2022) })
+    res.send({ code: 0, msg: '获取成功', data: await filtration(2021, 2022) })
   } catch (e) {
     next(e)
   }
 });
 
 
-// 点赞文章接口
+// 点赞文章
 router.post('/like', async (req, res, next) => {
   let { article_id } = req.body
   let { username } = req.user
   try {
-    let sql = 'select like_count from article where id = ? '
+    var sql = 'select like_count from article where id = ? '
     let result = await querySql(sql, [article_id])
     let newlikeCount = result[0].like_count + 1;
 
@@ -265,11 +272,11 @@ router.post('/like', async (req, res, next) => {
   }
 })
 
-// 搜索文章接口
+// 搜索文章
 router.post('/search', async (req, res, next) => {
   let { keyWord } = req.body
   try {
-    let sql = `SELECT * FROM article WHERE title LIKE '%${keyWord}%'|| content LIKE '%${keyWord}%'`
+    var sql = `SELECT * FROM article WHERE title LIKE '%${keyWord}%'|| content LIKE '%${keyWord}%'`
     let result = await querySql(sql);
     let arr = result.map((item) => {
       if (item.classify !== '[]') {
@@ -305,7 +312,7 @@ router.post('/deleteClassify', async (req, res, next) => {
 })
 
 
-// 更新文章接⼝
+// 更新文章
 router.post('/update', async (req, res, next) => {
   let { article_id, title, content, pic_url,
     classify
@@ -315,7 +322,7 @@ router.post('/update', async (req, res, next) => {
 
   try {
     // 通过文章id修改文章对应的标题和内容和封面地址
-    let sql = 'update article set classify = ?, title = ?,content = ?,pic_url = ? where id = ?'
+    var sql = 'update article set classify = ?, title = ?,content = ?,pic_url = ? where id = ?'
     await querySql(sql, [classifyArr, title, content, pic_url, article_id])
     classify.forEach(async (item) => {
       let data = await querySql('select list from classify where classname = ?', [item]);
