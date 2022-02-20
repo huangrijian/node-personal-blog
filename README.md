@@ -7,7 +7,7 @@
 
 ## 线上地址 
 
-[黄先森个人博客](http://http://www.hrjblog.top/)
+[黄先森个人博客](http://www.hrjblog.top/)
 
 
 ## 安装运行
