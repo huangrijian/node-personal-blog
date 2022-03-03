@@ -52,7 +52,7 @@ router.post('/login', async (req, res, next) => {
       if(!result || result.length === 0){
         res.send({code:-1,msg:'账号或密码不正确'})
       }else {
-        // 如果该结果存在说明登录成功，则生成token
+        // 如果该结果存在说明登录成功，则生成token,并且将username传入token中（先将username进行加密）
         let token = jwt.sign({username},PRIVATE_KEY,{expiresIn:EXPIRESD})
         res.send({code:0,msg:'登录成功',token:token})
       }
@@ -67,7 +67,6 @@ router.post('/login', async (req, res, next) => {
 /* 获取用户信息 */
 router.get('/info', async (req, res, next) => {
   // 这个req是经过了 expressJwt拦截token 后得到的对象  req.user可得到解密后的token信息
-  console.log(req.user);
   let { username } = req.user
   try{
     let userinfo = await querySql('select nickname,head_img,grade,username from user where username = ?',[username])
