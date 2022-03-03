@@ -12,7 +12,7 @@ let http = require('http');
  * Get port from environment and store in Express.
  */
 
-let port = normalizePort(process.env.PORT || '4000');
+let port = normalizePort('4000');
 app.set('port', port);
 
 /**
@@ -25,7 +25,7 @@ let server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
+server.listen(port, () => { console.log("请访问http://127.0.0.1:4000") });
 server.on('error', onError);
 server.on('listening', onListening);
 
