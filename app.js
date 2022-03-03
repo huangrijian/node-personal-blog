@@ -60,6 +60,7 @@ app.use(expressJWT({
     '/api/article/list/Singleclassify',
     '/api/article/upload',
     '/api/comment/list',
+    '/api/comment/listCount',
     '/api/article/typeList',
     '/api/article/timeShaft',
     '/api/speech/getSpeech',
