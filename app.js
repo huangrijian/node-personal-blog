@@ -27,7 +27,8 @@ const cors = require('cors');
 const { Console } = require('console');
 let corsOptions = {
   // 跨域白名单地址(只允许该地址访问)
-  origin: 'http://localhost:8080',
+  // origin: 'http://www.hrjblog.top',
+  origin: 'http://127.0.0.1:4000',
   optionsSuccessStatus: 200
 }
 // 设置跨域白名单
@@ -51,6 +52,7 @@ app.use(expressJWT({
   algorithms: ["HS256"]
 }).unless({
   path: [
+    '/',
     '/api/article/detail',
     '/api/article/search',
     '/api/users/login',
@@ -68,6 +70,8 @@ app.use(expressJWT({
   ] //⽩名单,除了这⾥写的地址，其 他的URL都需要验证
 }));
 
+// 访问静态资源
+app.use(express.static('public'))
 // 拼接请求地址的中间件
 app.use('/api/article', corsWeb, articleRouter);
 app.use('/api/users', corsWeb, usersRouter);

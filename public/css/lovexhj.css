@@ -1,0 +1,954 @@
+@font-face {
+    font-family: "wdnmd";
+    src: url("../fonts/1.ttf");
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    -moz-user-select: -moz-none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    font-family: "wdnmd";
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -webkit-tap-highlight-color: transparent;
+}
+
+body,
+html {
+    height: 100%;
+    scroll-behavior: smooth;
+}
+
+html {
+    background-color: white;
+    background-color: var(--bgColor);
+}
+
+a {
+    text-decoration: none;
+}
+
+ul {
+    list-style-type: none;
+}
+
+/* 滚动条 */
+body::-webkit-scrollbar {
+    width: 8px;
+    height: 1px;
+}
+
+body::-webkit-scrollbar-thumb {
+    background: #ffffff;
+    border-radius: 20px;
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    -ms-border-radius: 20px;
+    -o-border-radius: 20px;
+}
+
+/* 统一过渡 */
+body,
+html,
+.lovexhj1Text > ul i,
+.lovexhj1,
+.sunlightOrMoon div,
+.hill1 div,
+.earth > div,
+.lovexhj1Text,
+.lovexhj1Text > ul a,
+.el-tooltip__popper.is-light,
+.lovexhj1Text > ul li span,
+.sidebar > div span,
+.lovexhj1Box,
+.lovexhj2TextBox b::after,
+.lovexhj2TextBox a::after,
+.lovexhj2Img,
+.lovexhj2ImgShowBg {
+    transition: all .3s;
+    -webkit-transition: all .3s;
+    -moz-transition: all .3s;
+    -ms-transition: all .3s;
+    -o-transition: all .3s;
+}
+
+/* 统一定位居中 */
+.emoji .smile,
+.emoji .smile div:nth-child(2),
+.iceCreamToXHJ::after,
+.house > div:nth-child(1)::after {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    -webkit-transform: translateX(-50%);
+    -moz-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    -o-transform: translateX(-50%);
+}
+
+/* elementui修改 */
+.el-tooltip__popper.is-light {
+    font-size: 1rem !important;
+}
+
+/* v-clock */
+[v-cloak] {
+    display: none;
+}
+
+/* 侧栏按钮 */
+.sidebar {
+    position: fixed;
+    right: 50px;
+    bottom: 50px;
+    z-index: 99;
+}
+
+.sidebar > div {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    background: var(--hillColor4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.8rem;
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    -o-border-radius: 50%;
+    transition: all 0.15s;
+    -webkit-transition: all 0.15s;
+    -moz-transition: all 0.15s;
+    -ms-transition: all 0.15s;
+    -o-transition: all 0.15s;
+    opacity: 0.8;
+}
+
+.sidebar > div:hover {
+    transform: scale(1.1);
+    -webkit-transform: scale(1.1);
+    -moz-transform: scale(1.1);
+    -ms-transform: scale(1.1);
+    -o-transform: scale(1.1);
+    opacity: 1;
+}
+
+.sidebar > div:active {
+    transform: scale(0.8);
+    -webkit-transform: scale(0.8);
+    -moz-transform: scale(0.8);
+    -ms-transform: scale(0.8);
+    -o-transform: scale(0.8);
+}
+
+.sidebar > div span {
+    position: absolute;
+    right: 120%;
+    white-space: nowrap;
+    font-size: 1.2rem;
+    visibility: hidden;
+    opacity: 0;
+    font-weight: bold;
+}
+
+.sidebar > div:hover span {
+    visibility: inherit;
+    opacity: 1;
+    text-shadow: 0 0 5px black;
+}
+
+.sidebar b {
+    margin: 0 2px;
+}
+
+.sidebarDarkText {
+    color: rgb(136, 65, 167);
+    text-shadow: var(--titleShadow);
+}
+
+.sidebarWhiteText {
+    color: rgb(255, 69, 32);
+    text-shadow: var(--titleShadow);
+}
+
+/* 全局盒子定义 */
+#lovexhj,
+.lovexhj1,
+.lovexhj2,
+.lovexhj3,
+.lovexhj4 {
+    width: 100%;
+    height: 100%;
+    min-height: 750px;
+    position: relative;
+}
+
+/* 首页 */
+.lovexhj1 {
+    overflow: hidden;
+    background: var(--firstBgColor);
+}
+
+/* 首页云朵 */
+.lovexhj1 > div:nth-child(2),
+.lovexhj1 > div:nth-child(3),
+.lovexhj1 > div:nth-child(4),
+.lovexhj1 > div:nth-child(5) {
+    min-width: 120px;
+    width: 200px;
+    height: 50px;
+    background-color: white;
+    border-radius: 50px;
+    position: absolute;
+    z-index: 1;
+    animation: cloud 3s ease-in-out infinite;
+    -webkit-animation: cloud 3s ease-in-out infinite;
+    -webkit-border-radius: 50px;
+    -moz-border-radius: 50px;
+    -ms-border-radius: 50px;
+    -o-border-radius: 50px;
+    opacity: 0.5;
+}
+
+.lovexhj1 > div:nth-child(2)::after,
+.lovexhj1 > div:nth-child(2)::before,
+.lovexhj1 > div:nth-child(3)::after,
+.lovexhj1 > div:nth-child(3)::before,
+.lovexhj1 > div:nth-child(4)::after,
+.lovexhj1 > div:nth-child(4)::before,
+.lovexhj1 > div:nth-child(5)::after,
+.lovexhj1 > div:nth-child(5)::before {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background-color: white;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    -ms-border-radius: 50%;
+    -o-border-radius: 50%;
+}
+
+.lovexhj1 > div:nth-child(2)::after,
+.lovexhj1 > div:nth-child(3)::after,
+.lovexhj1 > div:nth-child(4)::after,
+.lovexhj1 > div:nth-child(5)::after {
+    width: 100px;
+    height: 100px;
+    left: 10%;
+    bottom: 0;
+}
+
+.lovexhj1 > div:nth-child(2)::before,
+.lovexhj1 > div:nth-child(3)::before,
+.lovexhj1 > div:nth-child(4)::before,
+.lovexhj1 > div:nth-child(5)::before {
+    right: 10%;
+    bottom: 0;
+}
+
+.lovexhj1 > div:nth-child(2) {
+    top: 10%;
+    left: -3%;
+}
+
+.lovexhj1 > div:nth-child(3) {
+    top: 26%;
+    left: 25%;
+    animation-delay: 0.5s;
+}
+
+.lovexhj1 > div:nth-child(4) {
+    top: 13%;
+    right: 20%;
+    animation-delay: 0.3s;
+}
+
+.lovexhj1 > div:nth-child(5) {
+    top: 35%;
+    right: -2%;
+    animation-delay: 0.8s;
+}
+
+/* 云朵动画 */
+@keyframes cloud {
+    0% {
+        transform: translateX(15px);
+        -webkit-transform: translateX(15px);
+        -moz-transform: translateX(15px);
+        -ms-transform: translateX(15px);
+        -o-transform: translateX(15px);
+    }
+
+    50% {
+        transform: translateX(-15px);
+        -webkit-transform: translateX(-15px);
+        -moz-transform: translateX(-15px);
+        -ms-transform: translateX(-15px);
+        -o-transform: translateX(-15px);
+    }
+
+    100% {
+        transform: translateX(15px);
+        -webkit-transform: translateX(15px);
+        -moz-transform: translateX(15px);
+        -ms-transform: translateX(15px);
+        -o-transform: translateX(15px);
+    }
+}
+
+.lovexhj1Box {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+/* 太阳与月亮 */
+.sunlightOrMoon {
+    position: absolute;
+    animation: sunlightOrMoon 1s ease-in-out infinite;
+    -webkit-animation: sunlightOrMoon 1s ease-in-out infinite;
+    transition: all 0.5s;
+    -webkit-transition: all 0.5s;
+    -moz-transition: all 0.5s;
+    -ms-transition: all 0.5s;
+    -o-transition: all 0.5s;
+}
+
+@keyframes sunlightOrMoon {
+    0% {
+        transform: scale(1);
+        -webkit-transform: scale(1);
+        -moz-transform: scale(1);
+        -ms-transform: scale(1);
+        -o-transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+        -webkit-transform: scale(1.05);
+        -moz-transform: scale(1.05);
+        -ms-transform: scale(1.05);
+        -o-transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+        -webkit-transform: scale(1);
+        -moz-transform: scale(1);
+        -ms-transform: scale(1);
+        -o-transform: scale(1);
+    }
+}
+
+.sunlightOrMoon div {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.sunlightOrMoon div:nth-child(1) {
+    z-index: 4;
+}
+
+.sunlightOrMoon div:nth-child(2) {
+    z-index: 3;
+    transform: scale(1.3);
+    -webkit-transform: scale(1.3);
+    -moz-transform: scale(1.3);
+    -ms-transform: scale(1.3);
+    -o-transform: scale(1.3);
+}
+
+.sunlightOrMoon div:nth-child(3) {
+    z-index: 2;
+    transform: scale(1.6);
+    -webkit-transform: scale(1.6);
+    -moz-transform: scale(1.6);
+    -ms-transform: scale(1.6);
+    -o-transform: scale(1.6);
+}
+
+.sunlightOrMoon div:nth-child(4) {
+    z-index: 1;
+    transform: scale(1.6);
+    -webkit-transform: scale(1.6);
+    -moz-transform: scale(1.6);
+    -ms-transform: scale(1.6);
+    -o-transform: scale(1.6);
+}
+
+/* 太阳或月亮隐藏 */
+.sunOrMoonHide {
+    top: 100% !important;
+}
+
+/* 太阳 */
+.sun div:nth-child(1) {
+    background: rgb(255, 110, 81);
+}
+
+.sun div:nth-child(2) {
+    background: rgba(255, 110, 81, 0.5);
+}
+
+.sun div:nth-child(3) {
+    background: rgba(255, 110, 81, 0.3);
+}
+
+.sun div:nth-child(4) {
+    box-shadow: 0 0 50px rgba(255, 110, 81, 0.5);
+}
+
+/* 月亮 */
+.moon div:nth-child(1) {
+    background: rgb(253, 253, 253);
+}
+
+.moon div:nth-child(2) {
+    background: rgba(253, 253, 253, 0.5);
+}
+
+.moon div:nth-child(3) {
+    background: rgba(253, 253, 253, 0.3);
+}
+
+.moon div:nth-child(4) {
+    box-shadow: 0 0 50px rgba(255, 255, 255, 0.5);
+}
+
+/* 山峰 */
+.hill1,
+.hill2 {
+    position: absolute;
+    width: 800px;
+    height: 800px;
+    background-color: white;
+    border-radius: 50px;
+    overflow: hidden;
+    transform: rotate(-45deg);
+    z-index: 3;
+}
+
+.hill1 div,
+.hill2 div {
+    width: 70%;
+    height: 70%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    position: absolute;
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    -ms-border-radius: 10px;
+    -o-border-radius: 10px;
+}
+
+.hill1 div:nth-child(1),
+.hill2 div:nth-child(1) {
+    background-color: var(--hillColor1);
+}
+
+.hill1 div:nth-child(2),
+.hill2 div:nth-child(2) {
+    background-color: var(--hillColor2);
+    bottom: 20%;
+    right: 20%;
+}
+
+.hill1 div:nth-child(3),
+.hill2 div:nth-child(3) {
+    background-color: var(--hillColor3);
+    top: 20%;
+    left: 20%;
+}
+
+.hill1 div:nth-child(4),
+.hill2 div:nth-child(4) {
+    background-color: var(--hillColor4);
+    bottom: 0;
+    right: 0;
+}
+
+.hill1 {
+    left: -10%;
+    bottom: -500px;
+}
+
+.hill2 {
+    width: 700px;
+    height: 700px;
+    right: -5%;
+    bottom: -450px;
+}
+
+/* 大地 */
+.earth {
+    width: 100%;
+    height: 20%;
+    background: var(--earth);
+    position: absolute;
+    bottom: 0;
+    z-index: 3;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.earth > div:nth-child(2),
+.earth > div:nth-child(3),
+.earth > div:nth-child(4),
+.earth > div:nth-child(5) {
+    position: absolute;
+}
+
+.earth > div:nth-child(5),
+.earth > div:nth-child(2)::after,
+.earth > div:nth-child(2)::before,
+.earth > div:nth-child(3)::after,
+.earth > div:nth-child(3)::before,
+.earth > div:nth-child(4)::after,
+.earth > div:nth-child(4)::before,
+.earth > div:nth-child(5)::after,
+.earth > div:nth-child(5)::before {
+    content: "";
+    display: block;
+    width: 10px;
+    height: 35px;
+    background: var(--cao);
+    position: absolute;
+    bottom: 0;
+}
+
+.earth > div:nth-child(2)::before,
+.earth > div:nth-child(3)::before,
+.earth > div:nth-child(4)::before,
+.earth > div:nth-child(5)::before {
+    left: 15px;
+}
+
+.earth > div:nth-child(2) {
+    top: 10px;
+    left: 25%;
+}
+
+.earth > div:nth-child(2)::before {
+    height: 30px;
+}
+
+.earth > div:nth-child(3) {
+    right: 35%;
+}
+
+.earth > div:nth-child(3)::before {
+    height: 40px;
+}
+
+.earth > div:nth-child(4) {
+    top: 50%;
+    right: 20%;
+}
+
+.earth > div:nth-child(4)::before {
+    height: 50px;
+}
+
+.earth > div:nth-child(5) {
+    top: 40%;
+    left: 40%;
+}
+
+.earth > div:nth-child(5)::after {
+    left: -20px;
+    height: 50px;
+}
+
+.earth > div:nth-child(5)::before {
+    height: 55px;
+}
+
+.sunlightOrMoon {
+    right: 30%;
+    top: 25%;
+    z-index: 1;
+}
+
+/* 标题文字 */
+.lovexhj1Text {
+    width: 100%;
+    text-align: center;
+    font-size: 6rem;
+    font-weight: bold;
+    color: var(--titleColor);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    text-shadow: var(--titleShadow);
+}
+
+.lovexhj1Text p:nth-child(2) {
+    font-size: 2rem;
+    margin: 10px 0;
+}
+
+/* 图标菜单 */
+.lovexhj1Text > ul {
+    font-size: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.lovexhj1Text > ul li {
+    margin: 0 10px;
+}
+
+.lovexhj1Text > ul a {
+    color: var(--titleColor);
+    font-size: 1.8rem;
+    text-shadow: var(--iconShadow);
+    position: relative;
+}
+
+.lovexhj1Text > ul li:hover i {
+    transform: scale(1.2) rotate(5deg);
+    -webkit-transform: scale(1.2) rotate(5deg);
+    -moz-transform: scale(1.2) rotate(5deg);
+    -ms-transform: scale(1.2) rotate(5deg);
+    -o-transform: scale(1.2) rotate(5deg);
+}
+
+.lovexhj1Text > ul li span {
+    padding: 0;
+    overflow: hidden;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    font-size: .9rem;
+    font-weight: bold;
+    white-space: nowrap;
+    background: var(--titleColor);
+    color: white;
+    text-shadow: none;
+    transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    -moz-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    -o-transform: translateY(-50%);
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    -ms-border-radius: 10px;
+    -o-border-radius: 10px;
+    box-shadow: var(--iconShadow);
+    visibility: hidden;
+    opacity: 0;
+}
+
+.lovexhj1Text > ul li:hover span {
+    opacity: 1;
+    visibility: inherit;
+    padding: 5px;
+    left: 120%;
+    z-index: 1;
+}
+
+/* 标题文字提示 */
+.el-tooltip__popper.is-light {
+    background: var(--titleColor);
+    border: none;
+    color: white;
+    font-size: 0.8rem;
+    box-shadow: 0 0 5px white;
+}
+
+.el-tooltip__popper .popper__arrow {
+    display: none;
+}
+
+/* 房屋 */
+.house {
+    position: absolute;
+    top: -40px;
+    left: 55%;
+    transform: scale(0.8);
+    -webkit-transform: scale(0.8);
+    -moz-transform: scale(0.8);
+    -ms-transform: scale(0.8);
+    -o-transform: scale(0.8);
+}
+
+.house > div:nth-child(1) {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(45deg, rgb(155, 70, 0), rgb(201, 114, 43));
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.house > div:nth-child(1)::after {
+    content: "";
+    display: block;
+    width: 0;
+    height: 0;
+    border-bottom: 35px solid rgb(155, 70, 0);
+    border-left: 35px solid transparent;
+    border-right: 35px solid transparent;
+    top: -50%;
+}
+
+.house > div:nth-child(1)::before {
+    content: "";
+    display: block;
+    width: 10px;
+    height: 30px;
+    background: rgb(155, 70, 0);
+    position: absolute;
+    top: -30px;
+    right: 5px;
+}
+
+/* 烟囱 */
+@keyframes houseCloudRight {
+    0% {
+        transform: translateX(0) translateY(0) scale(1);
+        -webkit-transform: translateX(0) translateY(0) scale(1);
+        -moz-transform: translateX(0) translateY(0) scale(1);
+        -ms-transform: translateX(0) translateY(0) scale(1);
+        -o-transform: translateX(0) translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(45px) translateY(-330px) scale(4.3);
+        -webkit-transform: translateX(45px) translateY(-330px) scale(4.3);
+        -moz-transform: translateX(45px) translateY(-330px) scale(4.3);
+        -ms-transform: translateX(45px) translateY(-330px) scale(4.3);
+        -o-transform: translateX(45px) translateY(-330px) scale(4.3);
+        opacity: 0.1;
+    }
+}
+
+@keyframes houseCloudLeft {
+    0% {
+        transform: translateX(0) translateY(0) scale(1);
+        -webkit-transform: translateX(0) translateY(0) scale(1);
+        -moz-transform: translateX(0) translateY(0) scale(1);
+        -ms-transform: translateX(0) translateY(0) scale(1);
+        -o-transform: translateX(0) translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(-45px) translateY(-330px) scale(4.3);
+        -webkit-transform: translateX(-45px) translateY(-330px) scale(4.3);
+        -moz-transform: translateX(-45px) translateY(-330px) scale(4.3);
+        -ms-transform: translateX(-45px) translateY(-330px) scale(4.3);
+        -o-transform: translateX(-45px) translateY(-330px) scale(4.3);
+        opacity: 0;
+    }
+}
+
+.house > div:nth-child(2),
+.house > div:nth-child(3),
+.house > div:nth-child(4),
+.house > div:nth-child(5),
+.house > div:nth-child(6),
+.house > div:nth-child(7),
+.house > div:nth-child(8),
+.house > div:nth-child(9) {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(75, 75, 75, 0.8);
+    left: 35px;
+    bottom: 20px;
+    z-index: -1;
+    animation: houseCloudLeft 5s ease-in-out infinite;
+    -webkit-animation: houseCloudLeft 5s ease-in-out infinite;
+}
+
+.house > div:nth-child(2),
+.house > div:nth-child(3),
+.house > div:nth-child(4),
+.house > div:nth-child(5) {
+    animation: houseCloudRight 5s ease-in-out infinite;
+    -webkit-animation: houseCloudRight 5s ease-in-out infinite;
+}
+
+.house > div:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.house > div:nth-child(3) {
+    animation-delay: 1.5s;
+}
+
+.house > div:nth-child(4) {
+    animation-delay: 0.7s;
+}
+
+.house > div:nth-child(5) {
+    animation-delay: 1.9s;
+}
+
+.house > div:nth-child(6) {
+    animation-delay: 0.2s;
+}
+
+.house > div:nth-child(7) {
+    animation-delay: 1.4s;
+}
+
+.house > div:nth-child(8) {
+    animation-delay: 0.6s;
+}
+
+.house > div:nth-child(9) {
+    animation-delay: 1.8s;
+}
+
+/* 介绍 */
+.lovexhj2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    width: 85%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* 介绍 - 文案 */
+.lovexhj2TextBox h1,
+.lovexhj2TextBox h2,
+.lovexhj2TextBox p,
+.lovexhj2TextBox b {
+    font-size: 4rem;
+    color: white;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
+}
+
+.lovexhj2TextBox h2 {
+    font-size: 2.5rem;
+    margin: 20px 0 12px;
+}
+
+.lovexhj2TextBox p,
+.lovexhj2TextBox b,
+.lovexhj2TextBox a {
+    font-size: 1.6rem;
+    margin: 8px 0;
+}
+
+.lovexhj2TextBox b,
+.lovexhj2TextBox a {
+    padding: 0 5px;
+    margin: 0 3px;
+    position: relative;
+}
+
+.lovexhj2TextBox b::after,
+.lovexhj2TextBox a::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 20%;
+    background: #ff4757;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: -1;
+}
+
+.lovexhj2TextBox b:hover::after,
+.lovexhj2TextBox a:hover::after {
+    height: 100%;
+}
+
+.lovexhj2TextBox a {
+    color: white;
+    font-weight: bold;
+}
+
+.lovexhj2TextBox a::after {
+    background: #1e90ff;
+}
+
+/* 介绍 - 图片 */
+.lovexhj2Img {
+    position: absolute;
+    right: 0;
+    min-width: 300px;
+    height: 500px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transform: rotate(5deg);
+    -webkit-transform: rotate(5deg);
+    -moz-transform: rotate(5deg);
+    -ms-transform: rotate(5deg);
+    -o-transform: rotate(5deg);
+    border: 20px solid white;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+}
+
+.lovexhj2Img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.lovexhj2Img:hover {
+    transform: rotate(3deg) scale(1.05);
+    -webkit-transform: rotate(3deg) scale(1.05);
+    -moz-transform: rotate(3deg) scale(1.05);
+    -ms-transform: rotate(3deg) scale(1.05);
+    -o-transform: rotate(3deg) scale(1.05);
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+}
+
+/* 介绍图片点击时 */
+.lovexhj2ImgAction {
+    transform: translateX(50%) rotate(0) !important;
+    -webkit-transform: translateX(50%) rotate(0) !important;
+    -moz-transform: translateX(50%) rotate(0) !important;
+    -ms-transform: translateX(50%) rotate(0) !important;
+    -o-transform: translateX(50%) rotate(0) !important;
+    box-shadow: 50px 50px 30px rgba(0, 0, 0, .4) !important;
+    margin-right: 50%;
+    z-index: 99;
+    height: 80%;
+}
+
+.lovexhj2ImgBg {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.lovexhj2ImgShowBg {
+    opacity: 1;
+    background: rgba(0, 0, 0, .5);
+    backdrop-filter: blur(5px);
+    visibility: visible;
+    z-index: 10;
+}
