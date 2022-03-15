@@ -2,7 +2,7 @@ let express = require('express');
 let router = express.Router();
 // 引入连接数据库的方法
 const querySql = require('../db/index')
-const { upload } = require('../utils/index')
+const { upload, parseRes } = require('../utils/index')
 
 router.post('/addArticle', async (req, res, next) => {
   // 获取标题和内容及分类
@@ -109,11 +109,44 @@ router.get('/typeList', async (req, res, next) => {
 });
 
 
+
+// 获取单页文章列表
+router.get('/getSinglePageArticleList', async (req, res, next) => {
+
+  let { limt, offset } = req.query
+
+  let sql = `select id,title,content,author,classify,type,pic_url,like_count,
+  DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time from article LIMIT ${limt} OFFSET ${offset}`;
+
+  let result = await querySql(sql);
+
+  res.send({ code: 0, msg: '获取成功', data: parseRes(result) })
+});
+
+
+
+// 获取全部文章列表的数量
+router.get('/getAllCount', async (req, res, next) => {
+  let sql = `select count(*) from article;`;
+  let result = await querySql(sql);
+  res.send({ code: 0, msg: '获取成功', count: result[0]['count(*)'] })
+});
+
+// 获取全部文章列表
+router.get('/getAllArticle', async (req, res, next) => {
+  let sql = `select id,title,content,author,classify,type,pic_url,like_count,
+  DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time from article where type = 0`;
+  let result = await querySql(sql);
+  res.send({ code: 0, msg: '获取成功', data: parseRes(result) })
+});
+
+
 // 通过单个分类获取文章列表
-router.get('/list/Singleclassify', async ({ query: { classname } }, res, next) => {
+router.get('/list/Singleclassify', async ({ query: { classname, limit, offset } }, res, next) => {
 
   async function getArticleIdList(classname) {
     let sql = `SELECT list FROM classify WHERE classname = '${classname}'`
+
     let res = await querySql(sql)
     let idArray = JSON.parse(res[0].list);
     let idList = idArray.length > 0 ? idArray.join() : 0;
@@ -121,7 +154,8 @@ router.get('/list/Singleclassify', async ({ query: { classname } }, res, next) =
   }
 
   async function getArticleInfoData(idList) {
-    let sql = `SELECT pic_url,title,content,create_time,classify, id FROM article WHERE id IN (${idList})`
+    let sql = `SELECT pic_url,title,content,create_time,classify, id FROM article 
+    WHERE id IN (${idList}) LIMIT ${limit} OFFSET ${offset}`
     let list = await querySql(sql)
 
     let articleArr = list.map((item) => {
@@ -138,9 +172,10 @@ router.get('/list/Singleclassify', async ({ query: { classname } }, res, next) =
   try {
     // 获取某分类下的所有文章id列表 如:93,95
     let idList = await getArticleIdList(classname);
+    let idListLength = [...new Set(idList.split(','))].length
     // 通过id列表 (如:93,95)获取文章信息数据
     let arr = await getArticleInfoData(idList)
-    res.send({ code: 0, msg: '获取单个标签分类成功', data: { list: arr } })
+    res.send({ code: 0, msg: '获取单个标签分类成功', data: { list: arr }, count: idListLength })
   } catch (e) {
     console.log(e)
     next(e)
@@ -274,9 +309,10 @@ router.post('/like', async (req, res, next) => {
 
 // 搜索文章
 router.post('/search', async (req, res, next) => {
-  let { keyWord } = req.body
+  let { limit, offset, keyWord } = req.body
   try {
-    var sql = `SELECT * FROM article WHERE title LIKE '%${keyWord}%'|| content LIKE '%${keyWord}%'`
+    var sql = `SELECT * FROM article 
+    WHERE title LIKE '%${keyWord}%'|| content LIKE '%${keyWord}%' LIMIT ${limit} OFFSET ${offset}`
     let result = await querySql(sql);
     let arr = result.map((item) => {
       if (item.classify !== '[]') {
@@ -291,6 +327,21 @@ router.post('/search', async (req, res, next) => {
     next(e)
   }
 })
+
+// 搜索文章符合条件的数量
+router.post('/searchCount', async (req, res, next) => {
+  let { keyWord } = req.body
+  try {
+    var sql = `SELECT count(*) FROM article 
+    WHERE title LIKE '%${keyWord}%'|| content LIKE '%${keyWord}%'`
+    let result = await querySql(sql);
+    res.send({ code: 0, msg: '获取搜索数量成功', count: result[0]['count(*)'] })
+  } catch (e) {
+    next(e)
+  }
+})
+
+
 
 // 删除文章单个分类
 router.post('/deleteClassify', async (req, res, next) => {
