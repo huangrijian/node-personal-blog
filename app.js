@@ -1,7 +1,7 @@
 let createError = require('http-errors');
 let express = require('express');
 let path = require('path');
-let cookieParser = require('cookie-parser');
+// let cookieParser = require('cookie-parser');
 let logger = require('morgan');
 // 引入登录拦截jwt解密校验 引入解密token的模块
 const expressJWT = require('express-jwt')
@@ -42,7 +42,7 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+// app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 使用expressJwt拦截token
@@ -59,12 +59,16 @@ app.use(expressJWT({
     '/api/users/register',
     '/api/article/allList',
     '/api/article/classify',
+    '/api/article/searchCount',
     '/api/article/list/Singleclassify',
+    '/api/article/getAllCount',
+    '/api/article/getSinglePageArticleList',
     '/api/article/upload',
     '/api/comment/list',
     '/api/comment/listCount',
     '/api/article/typeList',
     '/api/article/timeShaft',
+    '/api/article/getAllArticle',
     '/api/speech/getSpeech',
     '/api/photoWall/getPhoto'
   ] //⽩名单,除了这⾥写的地址，其 他的URL都需要验证
