@@ -91,7 +91,7 @@ router.get('/getSinglePageArticleList', async (req, res, next) => {
 
   let { limt, offset } = req.query
 
-  let sql = `select id,title,content,author,classify,type,pic_url,like_count,
+  let sql = `select id,title,content,author,classify,type,pic_url,like_count,brief,
   DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time from article LIMIT ${limt} OFFSET ${offset}`;
 
   let result = await querySql(sql);
