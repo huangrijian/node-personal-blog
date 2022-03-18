@@ -5,107 +5,84 @@ const querySql = require('../db/index')
 const { upload, parseRes } = require('../utils/index')
 
 router.post('/addArticle', async (req, res, next) => {
-  // 获取标题和内容及分类
-  let { title, content, type, pic_url, classify } = req.body
-  // 获取经过了 expressJwt拦截token后得到的username
-  let { username } = req.user
-  let nicknameRes = await querySql('select nickname from user where username = ?', [username])
-  let nickname = nicknameRes[0].nickname
 
-  // 根据用户名获取用户id
-  let result = await querySql('select id from user where username = ?', [username])
-  let user_id = result[0].id
+  try {
+    // 获取标题和内容及分类
+    let { title, content, type, pic_url, classify, brief } = req.body
+    // 获取经过了 expressJwt拦截token后得到的username
+    let { username } = req.user
+    let nicknameRes = await querySql('select nickname from user where username = ?', [username])
+    let nickname = nicknameRes[0].nickname
 
-  let classifyList = JSON.stringify(classify)
+    // 根据用户名获取用户id
+    let result = await querySql('select id from user where username = ?', [username])
+    let user_id = result[0].id
 
-  // 判断type是否为空,不为空返回本身,为空返回0(代表文章类型是技术博文)
-  type = type ? type : 0;
+    let classifyList = JSON.stringify(classify)
 
-  // 将标题和内容和作者以及文章分类id和分类名称和封面地址插入数据库
-  let { insertId } = await querySql(
-    `insert into article(title,content,user_id,
-        type,pic_url,author,classify,
-        create_time)values(?,?,?,?,?,?,?,localtime)`
-    , [title, content, user_id, type, pic_url, nickname, classifyList])
+    // 判断type是否为空,不为空返回本身,为空返回0(代表文章类型是技术博文)
+    type = type ? type : 0;
+
+    // 将标题和内容和作者以及文章分类id和分类名称和封面地址插入数据库
+    let { insertId } = await querySql(
+      `insert into article(title,content,user_id,
+        type,pic_url,author,classify,brief,
+        create_time)values(?,?,?,?,?,?,?,?,localtime)`
+      , [title, content, user_id, type, pic_url, nickname, classifyList, brief])
 
 
-  classify.forEach(async (item) => {
-    let data = await querySql('select list from classify where classname = ?', [item]);
-    if (data.length == 0) {
-      // 新的类别直接插入
-      await querySql(`insert into classify(classname, list)values(?,?)`, [item, JSON.stringify([insertId])])
-    } else {
-      let newLists = new Set(JSON.parse(data[0].list).concat(insertId))
-      let newList = JSON.stringify([...newLists])
-      await querySql(`update classify set list = ? where classname = ? `, [newList, item])
-    }
-  });
+    classify.forEach(async (item) => {
+      let data = await querySql('select list from classify where classname = ?', [item]);
+      if (data.length == 0) {
+        // 新的类别直接插入
+        await querySql(`insert into classify(classname, list)values(?,?)`, [item, JSON.stringify([insertId])])
+      } else {
+        let newLists = new Set(JSON.parse(data[0].list).concat(insertId))
+        let newList = JSON.stringify([...newLists])
+        await querySql(`update classify set list = ? where classname = ? `, [newList, item])
+      }
+    });
 
-  res.send({ code: 0, msg: '新增成功', data: null })
+    res.send({ code: 0, msg: '新增成功', data: null })
+  } catch (error) {
+    console.log(error);
+    next(error)
+  }
+
 })
 
 
 // 上传封面或头像 ，将图片保存在当前的 uploads 目录下
 router.post('/upload', upload.single('head_img'), async (req, res, next) => {
-  let url = 'http://112.124.52.188:4000';
+  // let url = 'http://112.124.52.188:4000';
+  let url = 'http://127.0.0.1:4000';
   let imgPath = req.file.path.split('public')[1];
   let imgUrl = url + imgPath
   res.send({ code: 0, msg: '上传成功', data: imgUrl })
 })
 
-// 获取博客列表（根据type获取，不填则返回技术文章，type为1则返回生活说说）
-router.get('/typeList', async (req, res, next) => {
-  // select * from student limit(curPage-1)*pageSize,pageSize;
-  try {
-
-    // 当前页 和 每页的数量 以及类型， type为1则返回生活说说,为空则返回技术文章
-    let { curPage, pageSize, type } = req.query
-
-    // 如果有分页数据则执行分页查询
-    if (curPage && pageSize) {
-      if (!type) {
-        //  type为空则返回技术文章
-        let start = (curPage - 1) * pageSize;
-        // 获取所有博客的数量
-        let numsql = 'select * from article where type = 0'
-        var sql = `SELECT id,title,content,author,classify,type,pic_url,like_count,
-          DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time FROM article where type = 0 limit ` + start + ',' + pageSize;
-        var coust = await querySql(numsql)
-        coust = coust.length
-      }
-
-    } else {
-      // 如果不分页...
-      // 如果文章类型为1
-      if (type == 1) {
-        // 则返回生活说说 type为1
-        var sql = `select id,title,content,type,pic_url,like_count,
-          DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time from article where type =`+ type
-      } else {
-        // 否则返回技术文章 type为0
-        //DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time 格式化时间
-        var sql = `select id,title,content,author,classify,type,pic_url,like_count,
-          DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time from article where type = 0`
-      }
-    }
-
-    let result = await querySql(sql);
-
-    let arr = result.map((item) => {
-      if (item.classify !== '[]') {
-        item.classify = JSON.parse(item.classify);
-      } else {
-        item.classify = [];
-      }
-      return item
-    })
-    res.send({ code: 0, msg: '获取成功', data: arr, coust })
-
-  } catch (e) {
-    console.log(e)
-    next(e)
-  }
-});
+// // 获取全部博客列表
+// router.get('/typeList', async (req, res, next) => {
+//   try {
+//     // 否则返回技术文章 type为0
+//     //DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time 格式化时间
+//     var sql = `select id,title,content,author,classify,type,pic_url,like_count,brief,
+//           DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time from article where type = 0`
+//     let result = await querySql(sql);
+//     let arr = result.map((item) => {
+//       if (item.classify !== '[]') {
+//         item.classify = JSON.parse(item.classify);
+//       } else {
+//         item.classify = [];
+//       }
+//       return item
+//     })
+//     res.send({ code: 0, msg: '获取成功', data: arr })
+//   } catch (e) {
+//     console.log(e)
+//     next(e)
+//   }
+// });
 
 
 
@@ -133,10 +110,14 @@ router.get('/getAllCount', async (req, res, next) => {
 
 // 获取全部文章列表
 router.get('/getAllArticle', async (req, res, next) => {
-  let sql = `select id,title,content,author,classify,type,pic_url,like_count,
-  DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time from article where type = 0`;
-  let result = await querySql(sql);
-  res.send({ code: 0, msg: '获取成功', data: parseRes(result) })
+  try {
+    let sql = `select id,title,content,author,classify,type,pic_url,like_count,brief,
+    DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time from article where type = 0`;
+    let result = await querySql(sql);
+    res.send({ code: 0, msg: '获取成功', data: parseRes(result) })
+  } catch (error) {
+    next(error)
+  }
 });
 
 
@@ -219,7 +200,7 @@ router.get('/detail', async (req, res, next) => {
   try {
     // 根据文章id查询相关数据
     var sql = `select id,title,content,
-    visited,like_count,pic_url,author,classify,
+    visited,like_count,pic_url,author,classify,brief,
     DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time from article where id = ?`
 
     let result = await querySql(sql, [article_id]);
@@ -389,16 +370,14 @@ router.post('/deleteClassify', async (req, res, next) => {
 
 // 更新文章
 router.post('/update', async (req, res, next) => {
-  let { article_id, title, content, pic_url,
-    classify
-  } = req.body
+  let { article_id, title, content, pic_url, classify, brief } = req.body
 
   let classifyArr = JSON.stringify(classify);
 
   try {
     // 通过文章id修改文章对应的标题和内容和封面地址
-    var sql = 'update article set classify = ?, title = ?,content = ?,pic_url = ? where id = ?'
-    await querySql(sql, [classifyArr, title, content, pic_url, article_id])
+    var sql = 'update article set classify = ?, title = ?,content = ?,pic_url = ?, brief = ? where id = ?'
+    await querySql(sql, [classifyArr, title, content, pic_url, brief, article_id])
     classify.forEach(async (item) => {
       let data = await querySql('select list from classify where classname = ?', [item]);
       if (data.length == 0) {
