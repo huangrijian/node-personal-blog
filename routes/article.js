@@ -47,8 +47,7 @@ router.post('/addArticle', async (req, res, next) => {
 
 // 上传封面或头像 ，将图片保存在当前的 uploads 目录下
 router.post('/upload', upload.single('head_img'), async (req, res, next) => {
-  console.log(req)
-  let url = 'http://127.0.0.1:4000';
+  let url = 'http://112.124.52.188:4000';
   let imgPath = req.file.path.split('public')[1];
   let imgUrl = url + imgPath
   res.send({ code: 0, msg: '上传成功', data: imgUrl })
@@ -289,18 +288,44 @@ router.get('/timeShaft', async (req, res, next) => {
 
 // 点赞文章
 router.post('/like', async (req, res, next) => {
+
+  // 点赞加1
+  async function addLike(article_id) {
+    let sql2 = 'select like_count from article where id = ? '
+    let result2 = await querySql(sql2, [article_id])
+    let newlikeCount = result2[0].like_count + 1;
+    let likesql = 'update article set like_count = ? where id = ?'
+    await querySql(likesql, [newlikeCount, article_id])
+    var likes = await querySql('select like_count from article where id = ?', [article_id]);
+    return likes
+  }
+  // 将点赞的用户名push到点赞列表并且更新
+  async function pushUsernameToLikeList(article_id, username, like_list) {
+    like_list.push(username)
+    let newList = JSON.stringify(like_list);
+    let sql = 'update article set like_list = ? where id = ?'
+    await querySql(sql, [newList, article_id])
+  }
+
   let { article_id } = req.body
   let { username } = req.user
   try {
-    var sql = 'select like_count from article where id = ? '
+    let sql = 'select like_list from article where id = ? '
     let result = await querySql(sql, [article_id])
-    let newlikeCount = result[0].like_count + 1;
-
-    let likesql = 'update article set like_count = ? where id = ?'
-    await querySql(likesql, [newlikeCount, article_id])
-
-    let likeres = await querySql('select like_count from article where id = ?', [article_id])
-    res.send({ code: 0, msg: '点赞成功', data: likeres })
+    let like_list = JSON.parse(result[0].like_list);
+    let isSame = false;
+    like_list.forEach((item) => {
+      if (item === username) isSame = true;
+    })
+    if (!isSame) {
+      // 将点赞数字＋1
+      var likes = await addLike(article_id);
+      // 将点赞的用户名push到点赞列表
+      await pushUsernameToLikeList(article_id, username, like_list);
+    }
+    let response = isSame ? { code: -1, msg: '花有重开日，人无再少年。', count: likes }
+      : { code: 200, msg: '赞+1', count: likes[0] }
+    return res.send(response)
   } catch (e) {
     console.log(e)
     next(e)
