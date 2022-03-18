@@ -61,30 +61,6 @@ router.post('/upload', upload.single('head_img'), async (req, res, next) => {
   res.send({ code: 0, msg: '上传成功', data: imgUrl })
 })
 
-// // 获取全部博客列表
-// router.get('/typeList', async (req, res, next) => {
-//   try {
-//     // 否则返回技术文章 type为0
-//     //DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time 格式化时间
-//     var sql = `select id,title,content,author,classify,type,pic_url,like_count,brief,
-//           DATE_FORMAT(create_time,"%Y-%m-%d %H:%i:%s") AS create_time from article where type = 0`
-//     let result = await querySql(sql);
-//     let arr = result.map((item) => {
-//       if (item.classify !== '[]') {
-//         item.classify = JSON.parse(item.classify);
-//       } else {
-//         item.classify = [];
-//       }
-//       return item
-//     })
-//     res.send({ code: 0, msg: '获取成功', data: arr })
-//   } catch (e) {
-//     console.log(e)
-//     next(e)
-//   }
-// });
-
-
 
 // 获取单页文章列表
 router.get('/getSinglePageArticleList', async (req, res, next) => {
@@ -164,14 +140,43 @@ router.get('/list/Singleclassify', async ({ query: { classname, limit, offset } 
 
 // 删除博客
 router.post('/delete', async (req, res, next) => {
-  let { article_id } = req.body
-  let { username } = req.user
-  try {
+
+  // 删除文章
+  async function deleteArticle(article_id, username) {
     let userSql = 'select id from user where username = ?'
     let user = await querySql(userSql, [username])
     let user_id = user[0].id
     var sql = 'delete from article where id = ? and user_id = ?'
-    let result = await querySql(sql, [article_id, user_id])
+    await querySql(sql, [article_id, user_id])
+  }
+
+  // 更新分类表的list,list装的是文章id的集合
+  async function updateClassifyList(article_id, classname) {
+    let sql = 'select list from classify where classname = ?'
+    let classifyList = await querySql(sql, [classname]);
+
+    let arr = [... new Set(JSON.parse(classifyList[0].list))].filter(item => {
+      if (String(item) !== String(article_id)) return true;
+    })
+    await querySql(`update classify set list = ? where classname = ? `, [JSON.stringify(arr), classname])
+  }
+
+  // 删除分类列表中的文章id
+  async function deleteArticleIdOnClassify(article_id) {
+    // 1.根据id获取文章所有分类
+    let sql = 'select classify from article where id = ?'
+    let classify = await querySql(sql, [article_id]);
+    let classifyArr = JSON.parse(classify[0].classify)
+    classifyArr.forEach(async (item) => {
+      // 2.根据分类名称从分类表的list中删除对应的id，然后更新list
+      await updateClassifyList(article_id, item)
+    })
+  }
+  let { article_id } = req.body
+  let { username } = req.user
+  try {
+    await deleteArticleIdOnClassify(article_id)
+    await deleteArticle(article_id, username);
     res.send({ code: 0, msg: '删除成功', data: null })
   } catch (e) {
     console.log(e)
@@ -179,13 +184,11 @@ router.post('/delete', async (req, res, next) => {
   }
 });
 
-
-
-// 获取全部博客分类
+// 获取全部博客分类（list不为空的）
 router.get('/classify', async (req, res, next) => {
   try {
-    var sql = 'select classify_id,classname from classify'
-    let result = await querySql(sql)
+    var sql = 'select classify_id,classname from classify where list != ?'
+    let result = await querySql(sql, [`[]`])
     res.send({ code: 0, msg: '获取博客分类成功', data: result })
   } catch (e) {
     console.log(e)
