@@ -176,7 +176,6 @@ router.get('/list/Singleclassify', async ({ query: { classname, limit, offset } 
     let arr = await getArticleInfoData(idList)
     res.send({ code: 0, msg: '获取单个标签分类成功', data: { list: arr }, count: idListLength })
   } catch (e) {
-    console.log(e)
     next(e)
   }
 });
