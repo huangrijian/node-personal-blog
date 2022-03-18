@@ -73,7 +73,25 @@ router.post('/addArticle', async (req, res, next) => {
 
   await querySql(
     `insert into speech (title,content,user_id,pic_url,author,
-      create_time)values(?,?,?,?,?,localtime)`, [title, content, user_id, pic_url, nickname])  
+      create_time)values(?,?,?,?,?,localtime)`, [title, content, user_id, pic_url, nickname])
   res.send({ code: 0, msg: '新增成功', data: [title, content, user_id, pic_url, nickname] })
 })
+
+// 删除博客
+router.post('/delete', async (req, res, next) => {
+  let { article_id } = req.body
+  let { username } = req.user
+  try {
+    let userSql = 'select id from user where username = ?'
+    let user = await querySql(userSql, [username])
+    let user_id = user[0].id
+    var sql = 'delete from speech where id = ? and user_id = ?'
+    await querySql(sql, [article_id, user_id])
+    res.send({ code: 0, msg: '删除成功', data: null })
+  } catch (e) {
+    console.log(e)
+    next(e)
+  }
+});
+
 module.exports = router;
