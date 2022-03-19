@@ -54,8 +54,7 @@ router.post('/addArticle', async (req, res, next) => {
 
 // 上传封面或头像 ，将图片保存在当前的 uploads 目录下
 router.post('/upload', upload.single('head_img'), async (req, res, next) => {
-  // let url = 'http://112.124.52.188:4000';
-  let url = 'http://127.0.0.1:4000';
+  let url = req.app.get('env') === 'development' ? 'http://127.0.0.1:4000' : 'http://112.124.52.188:4000';
   let imgPath = req.file.path.split('public')[1];
   let imgUrl = url + imgPath
   res.send({ code: 0, msg: '上传成功', data: imgUrl })
