@@ -4,7 +4,7 @@ let router = express.Router();
 const querySql = require('../db/index')
 // 引入给密码加密的方法、token密钥、过期时间
 const { PWD_SALT, PRIVATE_KEY, EXPIRESD } = require('../utils/constant')
-const { md5 } = require('../utils/index')
+const { md5, getUserInfo } = require('../utils/index')
 // 引入处理token的方法
 const jwt = require('jsonwebtoken')
 
@@ -78,6 +78,28 @@ router.get('/info', async (req, res, next) => {
 router.get('/infoList', async (req, res, next) => {
   let sql = `SELECT username, nickname, is_apply,grade FROM user`;
   let result = await querySql(sql);
+  result.forEach((item) => {
+
+    switch (item.grade) {
+      case 1:
+        item.grade = '管理员';
+        break;
+      case 2:
+        item.grade = '博主';
+        break;
+      case 3:
+        item.grade = '普通用户';
+        break;
+    }
+    switch (item.is_apply) {
+      case 1:
+        item.is_apply = '已申请';
+        break;
+      case 0:
+        item.is_apply = '未申请';
+        break;
+    }
+  })
   res.send({ code: 0, msg: '获取全部用户信息成功', data: result })
 });
 
@@ -110,7 +132,8 @@ router.post('/updateUser', async (req, res, next) => {
 })
 
 router.post('/updateGrade', async (req, res, next) => {
-  let { username, is_apply } = req.body
+  let { username } = req.user;
+  let { is_apply } = req.body;
   await querySql('update user set is_apply = ? where username = ?', [is_apply, username])
   res.send({ code: 200, msg: '成功' })
 })
