@@ -142,11 +142,13 @@ router.post('/delete', async (req, res, next) => {
 
   // 删除文章
   async function deleteArticle(article_id, username) {
-    let userSql = 'select id from user where username = ?'
+    let userSql = 'select id, grade from user where username = ?'
     let user = await querySql(userSql, [username])
-    let user_id = user[0].id
-    var sql = 'delete from article where id = ? and user_id = ?'
-    await querySql(sql, [article_id, user_id])
+    let user_id = user[0].id;
+    let user_grade = user[0].grade;
+    var sql = user_grade === 1 ? 'delete from article where id = ?'
+      : `delete from article where id = ? and user_id = ${user_id}`;
+    await querySql(sql, [article_id])
   }
 
   // 更新分类表的list,list装的是文章id的集合
@@ -219,18 +221,19 @@ router.get('/detail', async (req, res, next) => {
 });
 
 
-// 获取管理员的全部博客列表
+// 获取用户的全部博客列表
 router.get('/myList', async (req, res, next) => {
   // expressJwt拦截token 后得到的username
-  let { username } = req.user
+  let { username } = req.user;
+  let { grade } = req.query;
   try {
     // 根据用户名查找用户id
     let userSql = 'select id from user where username = ?'
     let user = await querySql(userSql, [username])
     let user_id = user[0].id
-    // 根据用户id查找文章 (也就是查找当前作者的文章,包括文章id,标题，内容)
-    var sql = 'select id,title,content,DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time from article where user_id = ?'
-    let result = await querySql(sql, [user_id])
+    // 根据用户id查找文章 (也就是查找当前作者的文章,包括文章id,标题，内容),如果是管理员发起的，则返回全部文章
+    var sql = grade === '1' ? 'select id,title,content,DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time from article' : `select id,title,content,DATE_FORMAT(create_time,"%Y-%m-%d%H:%i:%s") AS create_time from article where user_id = ${user_id}`
+    let result = await querySql(sql)
     // 将找到的结果返回到前端
     res.send({ code: 0, msg: '获取成功', data: result })
   } catch (e) {
