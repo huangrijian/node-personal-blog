@@ -2,7 +2,7 @@ let express = require('express');
 let router = express.Router();
 // 引入连接数据库的方法
 const querySql = require('../db/index')
-const { upload, parseRes } = require('../utils/index')
+const { upload, parseRes, getUserInfo } = require('../utils/index')
 
 router.post('/addArticle', async (req, res, next) => {
 
@@ -225,7 +225,7 @@ router.get('/detail', async (req, res, next) => {
 router.get('/myList', async (req, res, next) => {
   // expressJwt拦截token 后得到的username
   let { username } = req.user;
-  let { grade } = req.query;
+  let { grade } = await getUserInfo(username, 'grade')
   try {
     // 根据用户名查找用户id
     let userSql = 'select id from user where username = ?'
