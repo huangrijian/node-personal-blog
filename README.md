@@ -1,16 +1,17 @@
-# node个人博客系统
+# node 个人博客系统
 
+#999
 
-## 前端项目地址 
+## 前端项目地址
 
-[基于vue+element-ui实现的个人博客](https://gitee.com/huang-rijian/Vue-personal-Blog-front-end)
+[基于 vue+element-ui 实现的个人博客](https://gitee.com/huang-rijian/Vue-personal-Blog-front-end)
 
-## 线上地址 
+## 线上地址
 
 [黄先森个人博客](http://www.hrjblog.top/)
 
-
 ## 安装运行
+
 ```
 $前端
 $ git clone https://gitee.com/huang-rijian/Vue-personal-Blog-front-end.git
@@ -28,22 +29,24 @@ $ cd node-personal-blog-system
 $ npm install
 
 ```
-## 启动mysql数据库
 
-## 打开数据库可视化工具，新建一个数据库命名为blog
+## 启动 mysql 数据库
 
-## 将 sql目录里的sql文件导入到数据库blog中
+## 打开数据库可视化工具，新建一个数据库命名为 blog
 
-## 打开db目录下的config.js 根据本地数据库的用户名和密码修改
+## 将 sql 目录里的 sql 文件导入到数据库 blog 中
+
+## 打开 db 目录下的 config.js 根据本地数据库的用户名和密码修改
+
 ```js
 dbOption = {
   connectionLimit: 10,
-  host: 'localhost',
-  user: 'root',//修改为本地数据库的用户名
-  password: 'xxxx',//修改为本地数据库的密码
-  port: '3306',
-  database: 'blog'
-}
+  host: "localhost",
+  user: "root", //修改为本地数据库的用户名
+  password: "xxxx", //修改为本地数据库的密码
+  port: "3306",
+  database: "blog",
+};
 ```
 
 ## 运行
@@ -62,4 +65,4 @@ $ 密码：999
 
 ```
 
-## 接口文件在routes目录
+## 接口文件在 routes 目录
