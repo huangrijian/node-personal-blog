@@ -2,6 +2,7 @@ const crypto = require('crypto')
 const multer = require('multer')
 const fs = require('fs')
 const path = require('path')
+const querySql = require('../db/index')
 
 function md5(s) {
   // 给密码加密
@@ -48,8 +49,17 @@ function parseRes(result) {
   })
 }
 
+// 获取用户数据
+async function getUserInfo(username, selectStr) {
+  let userSql = `select ${selectStr} from user where username = ?`
+  let data = await querySql(userSql, [username])
+  return data[0]
+}
+
+
 module.exports = {
   md5,
   upload,
-  parseRes
+  parseRes,
+  getUserInfo
 }
