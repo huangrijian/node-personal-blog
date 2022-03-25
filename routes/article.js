@@ -30,15 +30,13 @@ router.post('/addArticle', async (req, res, next) => {
         create_time)values(?,?,?,?,?,?,?,?,localtime)`
       , [title, content, user_id, type, pic_url, nickname, classifyList, brief])
 
-
     classify.forEach(async (item) => {
       let data = await querySql('select list from classify where classname = ?', [item]);
       if (data.length == 0) {
         // 新的类别直接插入
         await querySql(`insert into classify(classname, list)values(?,?)`, [item, JSON.stringify([insertId])])
       } else {
-        let newLists = new Set(JSON.parse(data[0].list).concat(insertId))
-        let newList = JSON.stringify([...newLists])
+        let newList = JSON.stringify([...new Set(JSON.parse(data[0].list).concat(insertId))])
         await querySql(`update classify set list = ? where classname = ? `, [newList, item])
       }
     });
@@ -139,7 +137,6 @@ router.get('/list/Singleclassify', async ({ query: { classname, limit, offset } 
 
 // 删除博客
 router.post('/delete', async (req, res, next) => {
-
   // 删除文章
   async function deleteArticle(article_id, username) {
     let userSql = 'select id, grade from user where username = ?'
@@ -357,19 +354,15 @@ router.post('/searchCount', async (req, res, next) => {
 router.post('/deleteClassify', async (req, res, next) => {
   let { article_id, classifyName } = req.body
   let list1 = await querySql(`select list from classify where classname = ?`, [classifyName])
-  let list2 = await querySql(`select classify from article where id = ?`, [article_id])
+
+  if (list1.length === 0) return res.send({ code: -1, msg: '无该分类', data: null })
 
   let arr = JSON.parse(list1[0].list).filter((item) => {
     return item !== article_id
   })
-  let arr2 = JSON.parse(list2[0].classify).filter((item) => {
-    return item !== classifyName
-  })
-
   await querySql(`update classify set list = ? where classname = ? `, [JSON.stringify(arr), classifyName])
-  await querySql(`update article set classify = ? where id = ? `, [JSON.stringify(arr2), article_id])
 
-  res.send({ code: 0, msg: '删除成功', data: null })
+  res.send({ code: 200, msg: '删除成功', data: null })
 })
 
 
@@ -382,15 +375,17 @@ router.post('/update', async (req, res, next) => {
   try {
     // 通过文章id修改文章对应的标题和内容和封面地址
     var sql = 'update article set classify = ?, title = ?,content = ?,pic_url = ?, brief = ? where id = ?'
-    await querySql(sql, [classifyArr, title, content, pic_url, brief, article_id])
+    await querySql(sql, [classifyArr, title, content, pic_url, brief, article_id]);
+
     classify.forEach(async (item) => {
       let data = await querySql('select list from classify where classname = ?', [item]);
       if (data.length == 0) {
         // 新的类别直接插入
         await querySql(`insert into classify(classname, list)values(?,?)`, [item, JSON.stringify([article_id])])
       } else {
-        let newLists = new Set(JSON.parse(data[0].list).concat(article_id))
-        let newList = JSON.stringify([...newLists])
+        // 不是新的类别则将当前文章id推入原来的id列表
+        let newList = JSON.stringify([...new Set(JSON.parse(data[0].list).concat(article_id))]);
+
         await querySql(`update classify set list = ? where classname = ? `, [newList, item])
       }
     });
