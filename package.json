@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "nodemon ./bin/www",
-    "start": "node ./bin/www",
-    "pm2": "pm2 start ./bin/www"
+    "dev": "nodemon ./bin/www.js",
+    "start": "node ./bin/www.js",
+    "pm2": "pm2 start ./bin/www.js"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",

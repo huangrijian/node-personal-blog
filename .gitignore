@@ -16,11 +16,6 @@
 # Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
 # should NOT be excluded as they contain compiler settings and other important
 # information for Eclipse / Flash Builder.
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> 9fdf075 (上传了项目)
 .DS_Store
 node_modules
 /dist
@@ -44,8 +39,4 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
-<<<<<<< HEAD
-=======
->>>>>>> 4fe2cb7 (上传了项目)
->>>>>>> 9fdf075 (上传了项目)
 db/config.js
