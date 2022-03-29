@@ -1,4 +1,4 @@
-# node 个人博客系统~~
+# node 个人博客系统~~!!
 
 [基于 vue+element-ui 实现的个人博客](https://gitee.com/huang-rijian/Vue-personal-Blog-front-end)
 
