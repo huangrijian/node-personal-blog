@@ -27,8 +27,8 @@ const cors = require('cors');
 const { Console } = require('console');
 let corsOptions = {
   // 跨域白名单地址(只允许该地址访问)
-  // origin: 'http://www.hrjblog.top',
-  origin: 'http://localhost:8080',//填写当前的前端启动地址
+  // origin: 'http://127.0.0.1',
+  origin: '106.52.14.112',//填写当前的前端启动地址
   optionsSuccessStatus: 200
 }
 // 设置跨域白名单
